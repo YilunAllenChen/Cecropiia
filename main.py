@@ -66,4 +66,4 @@ def test(): return "Connection Established"
 
 
 if __name__ == '__main__':
-    server.app.run(host='127.0.0.1', port=8080,debug=True)
+    server.app.run(host='0.0.0.0', port=8080,debug=True)
