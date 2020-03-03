@@ -4,3 +4,4 @@ flask_pymongo
 kafka-python
 flask_CORS
 requests
+dnspython
