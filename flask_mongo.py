@@ -8,7 +8,6 @@ class Mongo:
         print("Initializing Flask_mongo module...")
         try:
             self.app = app
-            #self.app.config["MONGO_URI"] = "mongodb://aiegSimulatormockApp:Lo0RSpu5-dF5xsd@192.168.30.215:27037/aiegSimulatormock"
             self.app.config["MONGO_URI"] = self.__initMongoConfig()
             self.db = PyMongo(app).db
             self.__testMongoConnection('_selfTest')
