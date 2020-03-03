@@ -3,6 +3,7 @@ from time import sleep
 from bson.json_util import dumps
 from error_handling import *
 
+
 class Mongo:
     def __init__(self, app):
         print("Initializing Flask_mongo module...")
@@ -11,7 +12,6 @@ class Mongo:
             self.app.config["MONGO_URI"] = self.__initMongoConfig()
             self.db = PyMongo(app).db
             self.__testMongoConnection('_selfTest')
-            self.activeTestCase = -1
         except:
             print("Failed to initialize Flask_mongo")
 
@@ -40,7 +40,6 @@ class Mongo:
             from config import mongoConfig
         return mongoConfig
 
-        
     def __testMongoConnection(self, coll):
         try:
             testColl = self.db.get_collection(coll)
@@ -52,16 +51,12 @@ class Mongo:
         except Exception as e:
             print('Failed to configure MongoDB. Error message: ' + str(e))
 
-
-
     '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
                                                 INFRASTRUCTURE
     '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
     # A customized 'jsonify' function that interfaces with the app to avoid the error of regular jsonify being unable to parse ObjectID type in MongoDB documents.
     # The function basically inherits the original jsonify function but uses 'dumps' instead.
     # DON'T CHANGE.
-
 
     def jsonify(self, *args, **kwargs):
         indent = None
@@ -82,8 +77,6 @@ class Mongo:
         )
 
         self.activeTestCase = '-1'
-    
-
 
     def preProcess(self, request):
         try:
@@ -111,7 +104,8 @@ class Mongo:
     def writeDocument(self, request):
         try:
             req, coll = self.preProcess(request)
-            if coll is None: return jsonError("Collection")
+            if coll is None:
+                return jsonError("Collection")
             # Convert the POST request data into JSON format, stored in req.
             # Insert the newly posted data into the database. If there is already a document that has the same
             if(coll.find({'id': req['id']}).count()):
@@ -125,7 +119,8 @@ class Mongo:
     def getDocument(self, request):
         try:
             req, coll = self.preProcess(request)
-            if coll is None: return noDataFoundError()
+            if coll is None:
+                return noDataFoundError()
             return self.success(coll.find_one({'id': req['id']}))
         except Exception as e:
             return jsonError(e)
@@ -133,7 +128,8 @@ class Mongo:
     def getAllDocuments(self, request):
         try:
             req, coll = self.preProcess(request)
-            if coll is None: return noDataFoundError()
+            if coll is None:
+                return noDataFoundError()
             # Look through the collection and find all documents in the database, put them into a list.
             result = []
             for item in coll.find():
@@ -145,7 +141,8 @@ class Mongo:
     def getAndFilterDocument(self, request):
         try:
             req, coll = self.preProcess(request)
-            if coll is None: return noDataFoundError()
+            if coll is None:
+                return noDataFoundError()
             li = []
             try:
                 name = req['name']
@@ -161,7 +158,8 @@ class Mongo:
     def deleteDocuments(self, request):
         try:
             req, coll = self.preProcess(request)
-            if coll is None: return noDataFoundError()
+            if coll is None:
+                return noDataFoundError()
             ids = req['id']
             if type(ids) is list:
                 listDeleted = []
@@ -213,12 +211,14 @@ class Mongo:
                 coll = self.db.get_collection(name)
                 documentCounts[name] = coll.find().count()
             print(documentCounts)
-            return self.success({"documentCounts":documentCounts})
-        except Exception as e: return jsonError(e)
+            return self.success({"documentCounts": documentCounts})
+        except Exception as e:
+            return jsonError(e)
 
     def getValueByKey(self, request):
         req, coll = self.preProcess(request)
-        if coll is None: return noDataFoundError()
+        if coll is None:
+            return noDataFoundError()
         dataType = req['key']
         id = req['id']
         if coll.find({'id': id}).count():
@@ -240,7 +240,8 @@ class Mongo:
 
     def getRawValueByKey(self, request):
         req, coll = self.preProcess(request)
-        if coll is None: return noDataFoundError()
+        if coll is None:
+            return noDataFoundError()
         dataType = req['key']
         id = req['id']
         if coll.find({'id': id}).count():
@@ -255,7 +256,8 @@ class Mongo:
     def selectTestCase(self, request):
         try:
             req, coll = self.preProcess(request)
-            if coll is None: return noDataFoundError()
+            if coll is None:
+                return noDataFoundError()
             self.activeTestCase = req["id"]
             print("activeTestCase is now " + str(self.activeTestCase))
             return self.success(coll.find_one({'id': self.activeTestCase}))
