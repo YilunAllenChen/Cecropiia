@@ -61,8 +61,8 @@ def getValueByKey(): return server.mongo.getValueByKey(request) if request.metho
 @server.app.route('/database/get_raw_value_by_key/', methods=['POST', 'GET'])
 def getRawValueByKey(): return server.mongo.getRawValueByKey(request) if request.method == "POST" else badRequestError()
 
-
-
+@server.app.route('/', methods=['GET'])
+def test(): return "Connection Established"
 
 
 if __name__ == '__main__':
