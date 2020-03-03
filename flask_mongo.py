@@ -12,8 +12,8 @@ class Mongo:
             self.app.config["MONGO_URI"] = self.__initMongoConfig()
             self.db = PyMongo(app).db
             self.__testMongoConnection('_selfTest')
-        except:
-            print("Failed to initialize Flask_mongo")
+        except Exception as e:
+            print("Failed to initialize Flask_mongo:" + str(e))
 
     # Initialization of MongoDB Service.
     def __initMongoConfig(self):
