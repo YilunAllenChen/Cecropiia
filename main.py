@@ -1,14 +1,15 @@
 import json
 from error_handling import *
 from utils import *
-from flask import request, Flask, Response
+from flask import request, Flask, Response, send_from_directory, render_template
 from flask_cors import CORS
+import os
 from flask_mongo import Mongo
 
 
 # Version: 0.1.0
 
-app = Flask(__name__)
+app = Flask(__name__,static_folder="build/static", template_folder="build")
 CORS(app)
 mongo = Mongo(app)
 
@@ -66,7 +67,7 @@ def getValueByKey(): return mongo.getValueByKey(request) if request.method == "P
 def getRawValueByKey(): return mongo.getRawValueByKey(request) if request.method == "POST" else badRequestError()
 
 @app.route('/', methods=['GET'])
-def test(): return "Connection Established"
+def test(): return render_template('index.html')
 
 
 if __name__ == '__main__':
