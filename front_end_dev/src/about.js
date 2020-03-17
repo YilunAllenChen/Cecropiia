@@ -1,5 +1,6 @@
 import React from "react";
 import { Grid, Image, Segment, Container, Divider } from "semantic-ui-react";
+import "./apis"
 
 export default class About extends React.Component {
   constructor(props) {

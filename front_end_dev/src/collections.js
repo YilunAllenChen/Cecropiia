@@ -8,6 +8,11 @@ import {
   Card,
   Button
 } from "semantic-ui-react";
+import {
+  api_listCollections,
+  api_dropCollection,
+  api_writeDocument
+} from "./apis";
 
 export default class Collections extends React.Component {
   constructor(props) {
@@ -22,109 +27,73 @@ export default class Collections extends React.Component {
   }
 
   getAllCollections() {
-    fetch("/database/list_collections/", {
-      method: "POST",
-      headers: new Headers({
-        "Content-Type": "application/json;charset=UTF-8 " // 指定提交方式为表单提交
-      }),
-      body: JSON.stringify({
-        collection: this.activeCollection
-      })
-    })
-      .then(res => {
-        return res.text();
-      })
-      .then(res => {
-        let collections = [];
-        res = JSON.parse(res).result;
-        for (let ndx in res) {
-          let id = res[ndx];
-          collections.push(
-            <Card value={id} key={id}>
-              <Card.Content>
-                <Icon size="large" name="database"></Icon>
-                <Divider></Divider>
-                <Card.Header>{id}</Card.Header>
-                <Card.Description>
-                  {JSON.stringify(res[ndx].des)}
-                </Card.Description>
-              </Card.Content>
-              <Card.Content extra>
-                <div className="ui three buttons">
-                  <Button basic color="green">
-                    Check
-                  </Button>
-                  <Button
-                    basic
-                    color="green"
-                    onClick={() => {
-                      this.props.onViewCollection(id);
-                    }}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    id={id}
-                    basic
-                    color="red"
-                    onClick={this.dropThisCollection}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              </Card.Content>
-            </Card>
-          );
-        }
-        this.setState({ collections: collections });
-      });
+    api_listCollections().then(res => {
+      this.setState({ collections: res });
+    });
   }
 
   dropThisCollection = (e, { id }) => {
-    fetch("/database/drop_collection/", {
-      method: "POST",
-      headers: new Headers({
-        "Content-Type": "application/json;charset=UTF-8 " // 指定提交方式为表单提交
-      }),
-      body: JSON.stringify({
-        collection: id
-      })
-    })
-      .then(res => {
-        return res.text();
-      })
-      .then(res => {
-        this.getAllCollections();
-      });
+    api_dropCollection(id).then(res => {
+      this.getAllCollections();
+    });
   };
 
   submitForm = () => {
-    fetch("/database/write_document/", {
-      method: "POST",
-      headers: new Headers({
-        "Content-Type": "application/json;charset=UTF-8 " // 指定提交方式为表单提交
-      }),
-      body: JSON.stringify({
-        collection: this.state.collection,
-        id: this.state.id,
-        des: this.state.des
-      })
-    })
-      .then(res => {
-        return res.text();
-      })
-      .then(res => {
-        this.getAllCollections();
-      });
+    api_writeDocument({
+      collection: this.state.collection,
+      id: this.state.id,
+      des: this.state.des
+    }).then(res => {
+      this.getAllCollections();
+    });
   };
 
   handleChange = e => {
-    this.setState({ [e.target.name]: e.target.value }, () =>
-      console.log(this.state)
-    );
+    this.setState({ [e.target.name]: e.target.value }, () => {});
   };
 
   render() {
+    let collections = [];
+    for (let ndx in this.state.collections) {
+      let id = this.state.collections[ndx];
+      collections.push(
+        <Card value={id} key={id}>
+          <Card.Content>
+            <Icon size="large" name="database"></Icon>
+            <Divider></Divider>
+            <Card.Header>{id}</Card.Header>
+            <Card.Description>
+              {JSON.stringify(this.state.collections[ndx].des)}
+            </Card.Description>
+          </Card.Content>
+          <Card.Content extra>
+            <div className="ui three buttons">
+              <Button basic color="green">
+                Check
+              </Button>
+              <Button
+                basic
+                color="green"
+                onClick={() => {
+                  this.props.onViewCollection(id);
+                }}
+              >
+                Edit
+              </Button>
+              <Button
+                id={id}
+                basic
+                color="red"
+                onClick={this.dropThisCollection}
+              >
+                Delete
+              </Button>
+            </div>
+          </Card.Content>
+        </Card>
+      );
+    }
+
     return (
       <Container>
         <Form onSubmit={this.submitForm}>
@@ -158,11 +127,13 @@ export default class Collections extends React.Component {
               />
             </Form.Field>
           </Form.Group>
-          <Button type="submit">Submit</Button>
+          <Button type="submit" onClick={this.submitForm}>
+            Submit
+          </Button>
         </Form>
         <Divider></Divider>
         <Header as="h4">Collections</Header>
-        <Card.Group className="Card">{this.state.collections}</Card.Group>
+        <Card.Group className="Card">{collections}</Card.Group>
       </Container>
     );
   }

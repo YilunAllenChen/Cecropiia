@@ -1,7 +1,7 @@
 from flask_pymongo import PyMongo
 from time import sleep
 from bson.json_util import dumps
-from error_handling import *
+from errors import *
 
 
 class Mongo:
@@ -140,6 +140,7 @@ class Mongo:
             if coll is None:
                 return noDataFoundError()
             ids = req['id']
+            print(ids)
             if type(ids) is list:
                 listDeleted = []
                 listNotFound = []
@@ -162,4 +163,11 @@ class Mongo:
                 else:
                     return noDataFoundError()
         except BaseException as e:
+            return jsonError(e)
+
+    def listCollections(self, request):
+        try:
+            coll_names = self.db.list_collection_names(session=None)
+            return self.success(coll_names)
+        except Exception as e:
             return jsonError(e)

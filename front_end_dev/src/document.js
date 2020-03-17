@@ -9,6 +9,7 @@ import {
   Form,
   Segment
 } from "semantic-ui-react";
+import { api_writeDocument } from "./apis";
 
 export default class Document extends React.Component {
   constructor(props) {
@@ -20,26 +21,15 @@ export default class Document extends React.Component {
     };
   }
 
- 
-
   uploadEditedDocument() {
     let document = this.state.data;
     delete document["_id"];
-    console.log(document);
-    fetch("/database/write_document/", {
-      method: "POST",
-      headers: new Headers({
-        "Content-Type": "application/json;charset=UTF-8 " // 指定提交方式为表单提交
-      }),
-      body: JSON.stringify(document)
-    })
+
+    api_writeDocument(document)
       .then(res => {
-        return res.text();
-      })
-      .then(res => {
-        res = JSON.parse(res).result;
         console.log(res);
       });
+
     this.props.updateDocuments();
   }
 
@@ -48,7 +38,7 @@ export default class Document extends React.Component {
     let { id } = this.props;
     let fields = [];
     for (let ndx in data) {
-      if (data[ndx] === null){
+      if (data[ndx] === null) {
         continue;
       }
       if (ndx === "_id" || ndx === "id" || ndx === "collection") {
@@ -135,7 +125,14 @@ export default class Document extends React.Component {
                 </Button>
               </Modal.Actions>
             </Modal>
-            <Button id={id} basic color="red" onClick={()=>{this.props.delete(id)}}>
+            <Button
+              id={id}
+              basic
+              color="red"
+              onClick={() => {
+                this.props.delete(id);
+              }}
+            >
               Delete
             </Button>
           </div>
