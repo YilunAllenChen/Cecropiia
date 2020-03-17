@@ -9,25 +9,51 @@ class Mongo:
         print("Initializing Flask_mongo module...")
         try:
             self.app = app
-            try:
-                from config import mongoConfig
-                self.app.config["MONGO_URI"] = mongoConfig
-                self.db = PyMongo(app).db
-                try:
-                    testColl = self.db.get_collection("test_coll")
-                    testColl.insert_one({"test": "Success"})
-                    sleep(1)
-                    testColl.remove({"test": "Success"})
-                    testColl.drop()
-                    print('Database successfully configured and connected.')
-                except Exception as e:
-                    print('Failed to configure MongoDB. Error message: ' + str(e))
-            except:
-                print("Can't find mongo config.")
+            self.app.config["MONGO_URI"] = self.__initMongoConfig()
+            self.db = PyMongo(app).db
+            self.__testMongoConnection('_selfTest')
         except Exception as e:
             print("Failed to initialize Flask_mongo:" + str(e))
 
+    # Initialization of MongoDB Service.
+    def __initMongoConfig(self):
+        try:
+            from config import mongoConfig
+        except:
+            base = 'mongoConfig = \'mongodb://'
+            ip = input(
+                "mongoDB configuration doesn't exist. Starting MongoDB configuration process.\nPlease specify the IP of your mongoDB: ")
+            port = input("Please specify the port that mongoDB uses: ")
+            user = input("Please specify your user name: ")
+            pswd = input(
+                "Please enter the password corresponding to this DB: ")
+            if len(user) > 0 and len(pswd) > 0:
+                base += user + ":" + pswd + "@"
+            db = input(
+                "Please specify which database you are authorized to access: ")
+            if len(db) == 0:
+                print("No name entered; Will use default name 'mydb'")
+                db = 'mydb'
+            f = open('config.py', mode='a')
+            f.write(base + ip + ":" + port + '/' + db + '\'')
+            f.close()
+            from config import mongoConfig
+        return mongoConfig
 
+    def __testMongoConnection(self, coll):
+        try:
+            testColl = self.db.get_collection(coll)
+            testColl.insert_one({"test": "Success"})
+            sleep(1)
+            testColl.remove({"test": "Success"})
+            testColl.drop()
+            print('Database successfully configured and connected.')
+        except Exception as e:
+            print('Failed to configure MongoDB. Error message: ' + str(e))
+
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+                                                INFRASTRUCTURE
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     # A customized 'jsonify' function that interfaces with the app to avoid the error of regular jsonify being unable to parse ObjectID type in MongoDB documents.
     # The function basically inherits the original jsonify function but uses 'dumps' instead.
     # DON'T CHANGE.
@@ -51,11 +77,6 @@ class Mongo:
         )
 
         self.activeTestCase = '-1'
-
-    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-                                                INFRASTRUCTURE
-    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-   
 
     def preProcess(self, request):
         try:
@@ -162,4 +183,83 @@ class Mongo:
                 else:
                     return noDataFoundError()
         except BaseException as e:
+            return jsonError(e)
+
+    def dropCollection(self, request):
+        try:
+            req, coll = self.preProcess(request)
+            try:
+                coll.drop()
+                return self.success("Collection dropped successfully")
+            except:
+                return noDataFoundError()
+        except Exception as e:
+            return jsonError(e)
+
+    def listCollections(self, request):
+        try:
+            coll_names = self.db.list_collection_names(session=None)
+            return self.success(coll_names)
+        except Exception as e:
+            return jsonError(e)
+
+    def getStatistics(self, request):
+        try:
+            coll_names = self.db.list_collection_names(session=None)
+            documentCounts = {}
+            for name in coll_names:
+                coll = self.db.get_collection(name)
+                documentCounts[name] = coll.find().count()
+            print(documentCounts)
+            return self.success({"documentCounts": documentCounts})
+        except Exception as e:
+            return jsonError(e)
+
+    def getValueByKey(self, request):
+        req, coll = self.preProcess(request)
+        if coll is None:
+            return noDataFoundError()
+        dataType = req['key']
+        id = req['id']
+        if coll.find({'id': id}).count():
+            try:
+                if type(dataType) == list:
+                    res = {}
+                    for thisType in dataType:
+                        res[thisType] = coll.find_one({'id': id})[thisType]
+                    return self.success(res)
+                elif type(dataType) == str:
+                    return self.success({dataType: coll.find_one({'id': id})[dataType]})
+                else:
+                    return ParamNotFoundError(dataType)
+            except:
+                return noDataFoundError()
+        # If no test case data is found that matches the id, return an error message.
+        else:
+            return noDataFoundError()
+
+    def getRawValueByKey(self, request):
+        req, coll = self.preProcess(request)
+        if coll is None:
+            return noDataFoundError()
+        dataType = req['key']
+        id = req['id']
+        if coll.find({'id': id}).count():
+            try:
+                return self.success({dataType: coll.find_one({'id': id})[dataType]})
+            except:
+                return ParamNotFoundError('dataType')
+        # If no test case data is found that matches the id, return an error message.
+        else:
+            return noDataFoundError()
+
+    def selectTestCase(self, request):
+        try:
+            req, coll = self.preProcess(request)
+            if coll is None:
+                return noDataFoundError()
+            self.activeTestCase = req["id"]
+            print("activeTestCase is now " + str(self.activeTestCase))
+            return self.success(coll.find_one({'id': self.activeTestCase}))
+        except Exception as e:
             return jsonError(e)
