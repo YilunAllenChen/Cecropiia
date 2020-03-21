@@ -51,9 +51,7 @@ export default class Documents extends React.Component {
   }
 
   generateRandomDocument = () => {
-    console.log("Active: " + this.activeCollection)
     api_generateRandomDocument(this.activeCollection).then(res => {
-      console.log(res);
       this.getAllDocuments();
     });
   };

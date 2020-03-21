@@ -32,7 +32,6 @@ export default class DashBoard extends React.Component {
 
   fetchData() {
     api_getAllDocuments("Slothbot_Public_Data").then(res => {
-      console.log(res);
       let dataTypes = ["temperature", "humidity", "vibration"];
       let dataSets = [];
       let item;

@@ -22,7 +22,7 @@ export function api_dropCollection(id) {
   let async = new Promise((resolve, reject) => {
     fetch(base_URL + "/database/drop_collection/", {
       method: "POST",
-      headers: new Headers({
+      headers: new Headers({  
         "Content-Type": "application/json;charset=UTF-8 "
       }),
       body: JSON.stringify({
@@ -85,7 +85,6 @@ export function api_deleteDocument(obj) {
         return res.text();
       })
       .then(res => {
-        console.log(res);
         resolve();
       });
   });
@@ -94,7 +93,6 @@ export function api_deleteDocument(obj) {
 
 export function api_generateRandomDocument(coll) {
   let async = new Promise((resolve, reject) => {
-    console.log(coll);
     fetch(base_URL + "/database/write_document/", {
       method: "POST",
       headers: new Headers({
@@ -110,7 +108,6 @@ export function api_generateRandomDocument(coll) {
         return res.text();
       })
       .then(res => {
-        console.log(res);
         resolve(JSON.parse(res).result);
       });
   });
