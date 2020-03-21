@@ -1,4 +1,4 @@
-let base_URL = "http://127.0.0.1:5000";
+let base_URL = "cecropiia.herokuapp.com";
 
 export function api_listCollections() {
   let async = new Promise((resolve, reject) => {
