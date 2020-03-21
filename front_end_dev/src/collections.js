@@ -6,7 +6,8 @@ import {
   Icon,
   Form,
   Card,
-  Button
+  Button,
+  Confirm
 } from "semantic-ui-react";
 import {
   api_listCollections,
@@ -21,22 +22,38 @@ export default class Collections extends React.Component {
       collections: [],
       collection: "",
       id: "",
-      des: ""
+      des: "",
+      showConfirmDeletion: false
+    };
+    this.vars = {
+      coll_to_be_deleted: ""
     };
     this.getAllCollections();
   }
+
+  attemptDeletion = (e, { id }) => {
+    this.coll_to_be_deleted = id;
+    this.setState({ showConfirmDeletion: true });
+  };
+
+  cancelDeletion = () => {
+    console.log(this.state);
+    this.setState({showConfirmDeletion: false});
+    console.log(this.state);
+  };
+
+  dropSelectedColl = () => {
+    api_dropCollection(this.coll_to_be_deleted).then(res => {
+      this.getAllCollections();
+      this.setState({showConfirmDeletion: false});
+    });
+  };
 
   getAllCollections() {
     api_listCollections().then(res => {
       this.setState({ collections: res });
     });
   }
-
-  dropThisCollection = (e, { id }) => {
-    api_dropCollection(id).then(res => {
-      this.getAllCollections();
-    });
-  };
 
   submitForm = () => {
     api_writeDocument({
@@ -80,13 +97,13 @@ export default class Collections extends React.Component {
               >
                 Edit
               </Button>
-              <Button
-                id={id}
-                basic
-                color="red"
-                onClick={this.dropThisCollection}
-              >
+              <Button id={id} basic color="red" onClick={this.attemptDeletion}>
                 Delete
+                <Confirm
+                  open={this.state.showConfirmDeletion}
+                  onCancel={this.cancelDeletion}
+                  onConfirm={this.dropSelectedColl}
+                />
               </Button>
             </div>
           </Card.Content>

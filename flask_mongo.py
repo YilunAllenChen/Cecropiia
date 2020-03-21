@@ -171,3 +171,15 @@ class Mongo:
             return self.success(coll_names)
         except Exception as e:
             return jsonError(e)
+
+
+    def dropCollection(self, request):
+        try:
+            req, coll = self.preProcess(request)
+            try:
+                coll.drop()
+                return self.success("Collection dropped successfully")
+            except:
+                return noDataFoundError()
+        except Exception as e:
+            return jsonError(e)

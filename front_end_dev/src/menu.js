@@ -20,7 +20,7 @@ export default class NavMenu extends React.Component {
     const { activeItem } = this.state;
     return (
       <Container>
-        <Image centered src={require("./logo.svg")} size="small"></Image>
+        <Image centered src={require("./cecropiia.png")} size="small"></Image>
         <Menu vertical style={{ width: "100%" }}>
           <Menu.Item
             name="Dashboard"
@@ -34,15 +34,15 @@ export default class NavMenu extends React.Component {
             active={activeItem === "Collections"}
             onClick={this.handleItemClick}
           >
-            Collections
+            Database Management
           </Menu.Item>
-          <Menu.Item
+          {/* <Menu.Item
             name="Documents"
             active={activeItem === "Documents"}
             onClick={this.handleItemClick}
           >
             Documents
-          </Menu.Item>
+          </Menu.Item> */}
           <Divider></Divider>
 
           <Menu.Item

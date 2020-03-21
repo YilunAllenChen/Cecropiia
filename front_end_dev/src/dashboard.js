@@ -1,6 +1,7 @@
 import React from "react";
 import { Grid, Container, Divider } from "semantic-ui-react";
 import CanvasJSReact from "./canvasjs.react";
+import { api_getAllDocuments } from "./apis";
 var CanvasJS = CanvasJSReact.CanvasJS;
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
@@ -26,6 +27,37 @@ export default class DashBoard extends React.Component {
         ]
       }
     };
+    this.fetchData();
+  }
+
+  fetchData() {
+    api_getAllDocuments("Slothbot_Public_Data").then(res => {
+      console.log(res);
+      let dataTypes = ["temperature", "humidity", "vibration"];
+      let dataSets = [];
+      let item;
+      for (let dataTypeNdx in dataTypes) {
+        dataSets[dataTypeNdx] = {
+          type: "line",
+          dataPoints: []
+        };
+        for (let entryNdx in res) {
+          dataSets[dataTypeNdx].dataPoints.push({
+            label: res[entryNdx].id,
+            y: res[entryNdx][dataTypes[dataTypeNdx]]
+          });
+        }
+      }
+
+      this.setState({
+        chartConfig: {
+          title: {
+            text: "Basic Column Chart in React"
+          },
+          data: dataSets
+        }
+      });
+    });
   }
 
   async componentDidMount() {
@@ -35,27 +67,8 @@ export default class DashBoard extends React.Component {
         // const blocks = await res.json();
         // const dataPanelone = blocks.panelone;
         // const dataPaneltwo = blocks.paneltwo;
-
-        this.setState({
-          chartConfig: {
-            title: {
-              text: "Basic Column Chart in React"
-            },
-            data: [
-              {
-                type: "line",
-                dataPoints: [
-                  { label: "Apple", y: Math.random() * 10 },
-                  { label: "Orange", y: Math.random() * 10 + 10 },
-                  { label: "Banana", y: Math.random() * 10 + 7 },
-                  { label: "Mango", y: Math.random() * 10 + 12 },
-                  { label: "Grape", y: Math.random() * 10 + 16 }
-                ]
-              }
-            ]
-          }
-        });
-      }, 300);
+        this.fetchData();
+      }, 10000);
     } catch (e) {
       console.log(e);
     }
@@ -65,7 +78,7 @@ export default class DashBoard extends React.Component {
     return (
       <Container>
         <Grid style={{ padding: "20px" }} centered>
-          <h1>Flamongo Dashboard</h1>
+          <h1>Cecropia Dashboard</h1>
         </Grid>
         <Divider></Divider>
         <Grid columns="equal">
