@@ -1,4 +1,4 @@
-let base_URL = "cecropiia.herokuapp.com";
+let base_URL = "";
 
 export function api_listCollections() {
   let async = new Promise((resolve, reject) => {
