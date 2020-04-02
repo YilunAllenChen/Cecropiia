@@ -7,8 +7,9 @@ from flask_mongo import Mongo
 
 # Version: 0.1.0
 
-app = Flask(__name__,static_folder="build/static", template_folder="build")
-CORS(app)
+# app = Flask(__name__,static_folder="build/static", template_folder="build")
+app = Flask(__name__)
+# CORS(app)
 mongo = Mongo(app)
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -64,8 +65,13 @@ def getValueByKey(): return mongo.getValueByKey(request) if request.method == "P
 @app.route('/database/get_raw_value_by_key/', methods=['POST', 'GET'])
 def getRawValueByKey(): return mongo.getRawValueByKey(request) if request.method == "POST" else badRequestError()
 
-@app.route('/', methods=['GET'])
-def test(): return render_template('index.html')
+@app.route('/database/login/', methods=['POST'])
+def login(): return mongo.login(request)
+
+# @app.route('/', methods=['GET'])
+# def index(): return render_template('index.html')
+
+
 
 
 if __name__ == '__main__':

@@ -71,7 +71,7 @@ class Mongo:
 
     def success(self, result):
         return self.jsonify({
-            "code": 110400,
+            "code": 1000,
             "message": "success",
             "result": result
         })
@@ -183,3 +183,21 @@ class Mongo:
                 return noDataFoundError()
         except Exception as e:
             return jsonError(e)
+
+
+    def login(self, request):
+        print("Hi")
+        coll = self.db.get_collection('Users')
+        credentials = request.json
+        print(credentials)
+        if coll.find({'username':credentials['username']}).count():
+            userInfo = coll.find_one({'username':credentials['username']})
+            if credentials['password'] == userInfo['password']:
+                return self.success("Login Successful")
+            else:
+                return wrongCredentialError()
+        else:
+            credentials['id'] = credentials['username']
+            credentials['permission'] = 1
+            coll.insert_one(credentials)
+            return self.success("Registered")   
